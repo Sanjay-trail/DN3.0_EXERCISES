@@ -1,0 +1,25 @@
+DECLARE
+    v_customer_id Customers.CustomerID%TYPE;
+    v_loan_id Loans.LoanID%TYPE;
+    v_end_date Loans.EndDate%TYPE;
+    v_name Customers.Name%TYPE;
+    CURSOR loan_cursor IS
+        SELECT LoanID, CustomerID, EndDate
+        FROM Loans
+        WHERE EndDate BETWEEN SYSDATE AND SYSDATE + 30;
+BEGIN
+    FOR loan_record IN loan_cursor LOOP
+        v_customer_id := loan_record.CustomerID;
+        v_loan_id := loan_record.LoanID;
+        v_end_date := loan_record.EndDate;
+        
+        -- Fetch customer name
+        SELECT Name INTO v_name
+        FROM Customers
+        WHERE CustomerID = v_customer_id;
+        
+        -- Print reminder message
+        DBMS_OUTPUT.PUT_LINE('Reminder: Loan ID ' || v_loan_id || ' for customer ' || v_name || ' is due on ' || TO_CHAR(v_end_date, 'YYYY-MM-DD'));
+    END LOOP;
+END;
+/

@@ -1,0 +1,24 @@
+CREATE OR REPLACE PROCEDURE ProcessMonthlyInterest IS
+    v_account_id Accounts.AccountID%TYPE;
+    v_balance Accounts.Balance%TYPE;
+    v_interest_rate CONSTANT NUMBER := 0.01;
+    CURSOR savings_accounts_cursor IS
+        SELECT AccountID, Balance
+        FROM Accounts
+        WHERE AccountType = 'Savings';
+BEGIN
+    FOR account_record IN savings_accounts_cursor LOOP
+        v_account_id := account_record.AccountID;
+        v_balance := account_record.Balance;
+        
+        -- Calculate new balance with interest
+        v_balance := v_balance * (1 + v_interest_rate);
+        
+        -- Update account balance
+        UPDATE Accounts
+        SET Balance = v_balance
+        WHERE AccountID = v_account_id;
+    END LOOP;
+    COMMIT;
+END ProcessMonthlyInterest;
+/

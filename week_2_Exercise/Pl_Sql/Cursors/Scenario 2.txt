@@ -1,0 +1,24 @@
+DECLARE
+    CURSOR account_cursor IS
+        SELECT AccountID, Balance
+        FROM Accounts;
+    
+    v_account_id Accounts.AccountID%TYPE;
+    v_balance Accounts.Balance%TYPE;
+    v_annual_fee CONSTANT NUMBER := 50;
+BEGIN
+    OPEN account_cursor;
+    LOOP
+        FETCH account_cursor INTO v_account_id, v_balance;
+        EXIT WHEN account_cursor%NOTFOUND;
+        
+        -- Deduct annual fee
+        UPDATE Accounts
+        SET Balance = v_balance - v_annual_fee
+        WHERE AccountID = v_account_id;
+    END LOOP;
+    CLOSE account_cursor;
+    
+    COMMIT;
+END;
+/

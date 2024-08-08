@@ -1,0 +1,25 @@
+CREATE OR REPLACE PROCEDURE AddNewCustomer (
+    p_customer_id IN Customers.CustomerID%TYPE,
+    p_name IN Customers.Name%TYPE,
+    p_dob IN Customers.DOB%TYPE,
+    p_balance IN Customers.Balance%TYPE,
+    p_last_modified IN Customers.LastModified%TYPE
+) IS
+    duplicate_customer EXCEPTION;
+BEGIN
+    -- Insert new customer
+    INSERT INTO Customers (CustomerID, Name, DOB, Balance, LastModified)
+    VALUES (p_customer_id, p_name, p_dob, p_balance, p_last_modified);
+    
+    COMMIT;
+EXCEPTION
+    WHEN DUP_VAL_ON_INDEX THEN
+        ROLLBACK;
+        RAISE duplicate_customer;
+    WHEN duplicate_customer THEN
+        DBMS_OUTPUT.PUT_LINE('Error: Customer with ID ' || p_customer_id || ' already exists.');
+    WHEN OTHERS THEN
+        ROLLBACK;
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END AddNewCustomer;
+/

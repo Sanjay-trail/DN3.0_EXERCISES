@@ -1,0 +1,28 @@
+DECLARE
+    CURSOR transaction_cursor IS
+        SELECT c.CustomerID, c.Name, t.TransactionDate, t.Amount, t.TransactionType
+        FROM Customers c
+        JOIN Accounts a ON c.CustomerID = a.CustomerID
+        JOIN Transactions t ON a.AccountID = t.AccountID
+        WHERE t.TransactionDate BETWEEN TRUNC(SYSDATE, 'MM') AND LAST_DAY(SYSDATE)
+        ORDER BY c.CustomerID, t.TransactionDate;
+    
+    v_customer_id Customers.CustomerID%TYPE;
+    v_customer_name Customers.Name%TYPE;
+    v_transaction_date Transactions.TransactionDate%TYPE;
+    v_amount Transactions.Amount%TYPE;
+    v_transaction_type Transactions.TransactionType%TYPE;
+BEGIN
+    OPEN transaction_cursor;
+    LOOP
+        FETCH transaction_cursor INTO v_customer_id, v_customer_name, v_transaction_date, v_amount, v_transaction_type;
+        EXIT WHEN transaction_cursor%NOTFOUND;
+        
+        DBMS_OUTPUT.PUT_LINE('Customer ID: ' || v_customer_id || ', Name: ' || v_customer_name);
+        DBMS_OUTPUT.PUT_LINE('Transaction Date: ' || TO_CHAR(v_transaction_date, 'YYYY-MM-DD'));
+        DBMS_OUTPUT.PUT_LINE('Amount: ' || v_amount || ', Type: ' || v_transaction_type);
+        DBMS_OUTPUT.PUT_LINE('-----------------------');
+    END LOOP;
+    CLOSE transaction_cursor;
+END;
+/
